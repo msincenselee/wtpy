@@ -18,11 +18,11 @@ URL = 'https://github.com/wondertrader/wondertrader'
 EMAIL = 'silencesword@foxmail.com'
 AUTHOR = 'Wesley Liu'
 REQUIRES_PYTHON = '>=3.5.0'
-VERSION = '0.6.5'
+VERSION = '0.7.0.1'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'numpy', 'pandas', 'xlsxwriter', 'flask', 'flask_socketio'
+    'numpy', 'pandas', 'xlsxwriter', 'flask==1.1.2', 'flask_socketio==4.3.1', 'pyquery', 'flask-compress', 'psutil'
 ]
 
 # What packages are optional?

@@ -30,6 +30,10 @@ class HftContext:
 
         self.is_backtest = self.__engine__.is_backtest
 
+    @property
+    def id(self):
+        return self.__id__
+
     def on_init(self):
         '''
         初始化,一般用于系统启动的时候
@@ -51,6 +55,12 @@ class HftContext:
         @curTDate   交易日，格式为20210220
         '''
         self.__stra_info__.on_session_end(self, curTDate)
+
+    def on_backtest_end(self):
+        '''
+        回测结束事件
+        '''
+        self.__stra_info__.on_backtest_end(self)
 
     def on_getticks(self, stdCode:str, newTicks:list, isLast:bool):
         key = stdCode

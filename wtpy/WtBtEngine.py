@@ -224,20 +224,23 @@ class WtBtEngine:
         '''
         self.__wrapper__.set_time_range(beginTime, endTime)
 
-    def set_cta_strategy(self, strategy:BaseCtaStrategy, slippage:int = 0):
+    def set_cta_strategy(self, strategy:BaseCtaStrategy, slippage:int = 0, hook:bool = False):
         '''
         添加策略\n
         @strategy   策略对象
+        @slippage   滑点大小
+        @hook       是否安装钩子，主要用于单步控制重算
         '''
-        ctxid = self.__wrapper__.init_cta_mocker(strategy.name(), slippage)
+        ctxid = self.__wrapper__.init_cta_mocker(strategy.name(), slippage, hook)
         self.__context__ = CtaContext(ctxid, strategy, self.__wrapper__, self)
 
-    def set_hft_strategy(self, strategy:BaseHftStrategy):
+    def set_hft_strategy(self, strategy:BaseHftStrategy, hook:bool = False):
         '''
         添加策略\n
         @strategy   策略对象
+        @hook       是否安装钩子，主要用于单步控制重算
         '''
-        ctxid = self.__wrapper__.init_hft_mocker(strategy.name())
+        ctxid = self.__wrapper__.init_hft_mocker(strategy.name(), hook)
         self.__context__ = HftContext(ctxid, strategy, self.__wrapper__, self)
 
     def set_sel_strategy(self, strategy:BaseSelStrategy, date:int=0, time:int=0, period:str="d", trdtpl:str="CHINA", session:str="TRADING", slippage:int = 0):
@@ -251,28 +254,40 @@ class WtBtEngine:
     def get_context(self, id:int):
         return self.__context__
 
-    def run_backtest(self):
+    def run_backtest(self, bAsync:bool = False):
         '''
-        运行框架\n
+        运行框架
+
+        @bAsync 是否异步运行，默认为false
         '''
         if not self.__cfg_commited__:   #如果配置没有提交，则自动提交一下
             self.commitBTConfig()
 
-        self.__wrapper__.run_backtest(True)
+        self.__wrapper__.run_backtest(bNeedDump = True, bAsync = bAsync)
+
+    def cta_step(self):
+        '''
+        CTA策略单步执行
+        '''
+        self.__wrapper__.cta_step(self.__context__.id)
+
+    def hft_step(self):
+        '''
+        HFT策略单步执行
+        '''
+        self.__wrapper__.hft_step(self.__context__.id)
+
+    def stop_backtest(self):
+        '''
+        手动停止回测
+        '''
+        self.__wrapper__.stop_backtest()
 
     def release_backtest(self):
         '''
         释放框架
         '''
         self.__wrapper__.release_backtest()
-
-    def dump_kline(self, code:str, period:str, filename:str):
-        '''
-        将K线导出到文件\n
-        @code   合约代码，格式如SHFE.rb.HOT\n
-        @period 周期，一般使用d/m1/m5
-        '''
-        self.__wrapper__.dump_kline(code, period, filename)
 
     def on_init(self):
         return
@@ -285,3 +300,12 @@ class WtBtEngine:
 
     def on_session_end(self, date:int):
         return
+
+    def on_backtest_end(self):
+        self.__context__.on_backtest_end()
+
+    def clear_cache(self):
+        '''
+        清除缓存的数据，即加已经加载到内存中的数据全部清除
+        '''
+        self.__wrapper__.clear_cache()

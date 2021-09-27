@@ -28,6 +28,10 @@ class CtaContext:
 
         self.is_backtest = self.__engine__.is_backtest
 
+    @property
+    def id(self):
+        return self.__id__
+
     def write_indicator(self, tag:str, time:int, data:dict):
         '''
         输出指标数据
@@ -58,6 +62,12 @@ class CtaContext:
         @curTDate   交易日，格式为20210220
         '''
         self.__stra_info__.on_session_end(self, curTDate)
+
+    def on_backtest_end(self):
+        '''
+        回测结束事件
+        '''
+        self.__stra_info__.on_backtest_end(self)
 
     def on_getticks(self, stdCode:str, newTicks:list, isLast:bool):
         key = stdCode
